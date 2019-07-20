@@ -82,14 +82,17 @@ int tnet_ice_utils_create_sockets(tnet_socket_type_t socket_type, const char* lo
     tsk_bool_t look4_rtcp = (socket_rtcp != tsk_null);
     uint8_t retry_count = 10;
     tnet_port_t local_port;
-    static const uint64_t port_range_start = 1024;
-    static const uint64_t port_range_stop = (65535 - 1/* to be sure rtcp port will be valid */);
+    static const uint64_t port_range_start = 40000;
+    static const uint64_t port_range_stop = (50000 - 1/* to be sure rtcp port will be valid */);
     static uint64_t counter = 0;
 
     /* Creates local rtp and rtcp sockets */
     while(retry_count--) {
+        TSK_DEBUG_INFO("trying create sockets retry_count: %u ", 10 - retry_count);
         if(look4_rtp && look4_rtcp) {
-            tnet_socket_t* socket_fake = tnet_socket_create(local_ip, TNET_SOCKET_PORT_ANY, socket_type);
+            tnet_port_t port = (tnet_port_t)((((tsk_time_epoch() + rand() ) ^ ++counter) % (port_range_stop - port_range_start)) + port_range_start);
+            TSK_DEBUG_INFO("random local port between %u and %u", port_range_start, port_range_stop);
+            tnet_socket_t* socket_fake = tnet_socket_create(local_ip, port, socket_type);
             if(!socket_fake) {
                 continue;
             }
@@ -104,6 +107,7 @@ int tnet_ice_utils_create_sockets(tnet_socket_type_t socket_type, const char* lo
         else {
             local_port = (tnet_port_t)((((tsk_time_epoch() + rand() ) ^ ++counter) % (port_range_stop - port_range_start)) + port_range_start);
             local_port = (local_port & 0xFFFE); /* turn to even number */
+            TSK_DEBUG_INFO("random local port between %u and %u", port_range_start, port_range_stop);
         }
 
         /* beacuse failure will cause errors in the log, print a message to alert that there is
@@ -126,7 +130,7 @@ int tnet_ice_utils_create_sockets(tnet_socket_type_t socket_type, const char* lo
                 continue;
             }
         }
-
+        
         TSK_DEBUG_INFO("RTP/RTCP manager[End]: Trying to bind to random ports");
         return 0;
     }
