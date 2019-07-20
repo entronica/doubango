@@ -58,8 +58,8 @@ static int32_t __audio_consumer_gain = 0;
 static int32_t __audio_channels_playback = 1;
 static int32_t __audio_channels_record = 1;
 static int32_t __audio_ptime = 20;
-static uint16_t __rtp_port_range_start = 1024;
-static uint16_t __rtp_port_range_stop = 65535;
+static uint16_t __rtp_port_range_start = 40000;
+static uint16_t __rtp_port_range_stop = 49999;
 static tsk_bool_t __rtp_symetric_enabled = tsk_false; // This option is force symetric RTP for remote size. Local: always ON
 static tmedia_type_t __media_type = tmedia_audio;
 static int32_t __volume = 100;
@@ -439,6 +439,7 @@ int tmedia_defaults_set_rtp_port_range(uint16_t start, uint16_t stop)
         TSK_DEBUG_ERROR("Invalid parameter: (%u < 1024 || %u < 1024 || %u >= %u)", start, stop, start, stop);
         return -1;
     }
+    TSK_DEBUG_INFO("Set rtp port range: %u to %u", start, stop);
     __rtp_port_range_start = start;
     __rtp_port_range_stop = stop;
     return 0;
