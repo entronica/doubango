@@ -511,7 +511,8 @@ tsk_size_t tsip_transport_send(const tsip_transport_t* self, const char *branch,
         }
         else if(TSIP_MESSAGE_IS_RESPONSE(msg)) {
             const tsip_header_t *via;
-            if ((via = tsip_message_get_headerAt(msg, tsip_htype_Via, 1))) {
+            if ((via = tsip_message_get_headerAt(msg, tsip_htype_Via, 1)) && TNET_SOCKET_TYPE_IS_UDP(msg->src_net_type) && (TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type))) {
+                TSK_OBJECT_SAFE_FREE(msg->firstVia);
                 msg->firstVia = NULL;
             }
             /* AoR for responses which have a contact header (e.g. 183/200 INVITE) */
