@@ -37,7 +37,6 @@
 #include "stun/tnet_stun_message.h"
 #include "stun/tnet_stun_types.h"
 #include "turn/tnet_turn_session.h"
-
 #include "tsk_condwait.h"
 #include "tsk_time.h"
 #include "tsk_timer.h"
@@ -216,6 +215,14 @@ static tnet_ice_server_t* tnet_ice_server_create(
     return ice_server;
 }
 
+
+typedef struct rtp_port_range_s {
+    uint16_t start;
+    uint16_t stop;
+}
+rtp_port_range_t;
+
+
 typedef struct tnet_ice_ctx_s {
     TSK_DECLARE_RUNNABLE;
 
@@ -288,6 +295,8 @@ typedef struct tnet_ice_ctx_s {
     } turn;
 
     TSK_DECLARE_SAFEOBJ;
+
+    rtp_port_range_t rtp_port_range; 
 }
 tnet_ice_ctx_t;
 
@@ -466,6 +475,7 @@ static const tsk_object_def_t tnet_ice_ctx_def_s = {
 tnet_ice_ctx_t* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata)
 {
     tnet_ice_ctx_t* ctx;
+    rtp_port_range_t *rtp_port = (rtp_port_range_t *) userdata;
 
     if (!(ctx = tsk_object_new(&tnet_ice_ctx_def_s))) {
         TSK_DEBUG_ERROR("Failed to create ICE context object");
@@ -481,6 +491,8 @@ tnet_ice_ctx_t* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv
     ctx->unicast = tsk_true;
     ctx->anycast = tsk_false;
     ctx->multicast = tsk_false;
+    ctx->rtp_port_range.start = rtp_port->start;
+    ctx->rtp_port_range.stop  = rtp_port->stop;
 
     tnet_ice_utils_set_ufrag(&ctx->ufrag);
     tnet_ice_utils_set_pwd(&ctx->pwd);
@@ -1202,6 +1214,8 @@ static int _tnet_ice_ctx_fsm_Started_2_GatheringHostCandidates_X_GatherHostCandi
         if ((address->family == AF_INET && tsk_striequals(address->ip, "127.0.0.1")) || (address->family == AF_INET6 && tsk_striequals(address->ip, "::1"))) {
             continue;
         }
+
+        ret = tnet_defaults_set_rtp_port_range(self->rtp_port_range.start, self->rtp_port_range.start);
 
         // host candidates
 		ret = tnet_ice_utils_create_sockets((address->family == AF_INET6) ? tnet_socket_type_udp_ipv6 : tnet_socket_type_udp_ipv4,

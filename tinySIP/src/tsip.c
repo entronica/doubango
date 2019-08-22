@@ -467,6 +467,12 @@ static int __tsip_stack_set(tsip_stack_t *self, va_list* app)
             break;
         }
 
+        /* === User Data === */
+        case tsip_pname_rtp_port_range: {
+            self->port_range_start = va_arg(*app, uint16_t);
+            self->port_range_stop = va_arg(*app, uint16_t);
+            break;
+        }
 
 
         default: {
@@ -490,7 +496,7 @@ bail:
  * @param impi_uri The IMPI is a unique identifier assigned to a user (or UE) by the home network.
  * It could be either a SIP URI (e.g. sip:bob@open-ims.test), a tel URI (e.g. tel:+33100000) or any alphanumeric string (e.g. bob@open-ims.test or bob).
  * It is used to authenticate the UE (username field in SIP Authorization/Proxy-Authorization header).
- * @param impu_uri As its name says, it’s you public visible identifier where you are willing to receive calls or any demands.
+ * @param impu_uri As its name says, itï¿½s you public visible identifier where you are willing to receive calls or any demands.
  * An IMPU could be either a SIP or tel URI (e.g. tel:+33100000 or sip:bob@open-ims.test). In IMS world, a user can have multiple IMPUs associated to its unique IMPI.
  * @param ... Any TSIP_STACK_SET_*() macros.
  * @retval A valid handle if succeed and Null-handle otherwise. As a stack is a well-defined object, you should use @a TSK_OBJECT_SAFE_FREE() to safely destroy the handle.
@@ -624,6 +630,10 @@ tsip_stack_handle_t* tsip_stack_create(tsip_stack_callback_f callback, const cha
         TSK_OBJECT_SAFE_FREE(stack);
         goto bail;
     }
+
+    /* set defualt RTP/SRTP port */
+    stack->port_range_start = 1024;
+    stack->port_range_stop = 65535;
 
 bail:
     return stack;

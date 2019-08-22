@@ -76,14 +76,26 @@ int tnet_ice_utils_compute_foundation(char* foundation, tsk_size_t size)
     return 0;
 }
 
+int tnet_defaults_set_rtp_port_range(uint16_t start, uint16_t stop)
+{
+    if(start < 1024 || stop < 1024 || start >= stop) {
+        TSK_DEBUG_ERROR("Invalid parameter: (%u < 1024 || %u < 1024 || %u >= %u)", start, stop, start, stop);
+        return -1;
+    }
+    TSK_DEBUG_INFO("Set rtp port range: %u to %u", start, stop);
+    port_range_start = start;
+    port_range_stop = stop;
+    return 0;
+}
+
 int tnet_ice_utils_create_sockets(tnet_socket_type_t socket_type, const char* local_ip, tnet_socket_t** socket_rtp, tnet_socket_t** socket_rtcp)
 {
     tsk_bool_t look4_rtp = (socket_rtp != tsk_null);
     tsk_bool_t look4_rtcp = (socket_rtcp != tsk_null);
     uint8_t retry_count = 10;
     tnet_port_t local_port;
-    static const uint64_t port_range_start = 40000;
-    static const uint64_t port_range_stop = (50000 - 1/* to be sure rtcp port will be valid */);
+    //static const uint64_t port_range_start = 40000;
+    //static const uint64_t port_range_stop = (50000 - 1/* to be sure rtcp port will be valid */);
     static uint64_t counter = 0;
 
     /* Creates local rtp and rtcp sockets */

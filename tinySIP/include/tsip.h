@@ -115,6 +115,9 @@ typedef enum tsip_stack_param_type_e {
 
     /* === User Data === */
     tsip_pname_userdata,
+
+    /* === RTP/SRTP === */
+    tsip_pname_rtp_port_range,
 }
 tsip_stack_param_type_t;
 
@@ -180,7 +183,7 @@ tsip_stack_param_type_t;
 #define TSIP_STACK_SET_PREFERRED_IDENTITY(URI_STR)		tsip_pname_preferred_id, (const char*)URI_STR
 #define TSIP_STACK_SET_IMPI(IMPI_STR)					tsip_pname_impi, (const char*)IMPI_STR
 #define TSIP_STACK_SET_PASSWORD(PASSORD_STR)			tsip_pname_password, (const char*)PASSORD_STR
-
+#define TSIP_STACK_SET_RTP_PORT_RANGE(START, STOP)		tsip_pname_rtp_port_range, (uint16_t)STOP, (uint16_t)STOP
 
 /* === SigComp === */
 /**@ingroup tsip_stack_group
@@ -663,6 +666,10 @@ typedef struct tsip_stack_s {
     struct tsip_dialog_layer_s *layer_dialog;
     struct tsip_transac_layer_s *layer_transac;
     struct tsip_transport_layer_s *layer_transport;
+
+    /* default RTP/SRTP port range */
+    uint16_t port_range_start;
+    uint16_t port_range_stop;
 }
 tsip_stack_t;
 

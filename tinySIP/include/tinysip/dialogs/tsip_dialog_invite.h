@@ -40,6 +40,12 @@ TSIP_BEGIN_DECLS
 
 #define TSIP_DIALOG_INVITE(self)							((tsip_dialog_invite_t*)(self))
 
+typedef struct rtp_port_range_s {
+    uint16_t start;
+    uint16_t stop;
+}
+rtp_port_range_t;
+
 typedef struct tsip_dialog_invite {
     TSIP_DECLARE_DIALOG;
 
@@ -114,6 +120,8 @@ typedef struct tsip_dialog_invite {
         unsigned norefersub;
         unsigned ice:1;
     } required;
+    
+    rtp_port_range_t rtp_port_range;
 }
 tsip_dialog_invite_t;
 

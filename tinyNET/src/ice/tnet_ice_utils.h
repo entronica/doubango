@@ -31,12 +31,15 @@ enum tnet_socket_type_e;
 enum tnet_stun_addr_family_e;
 struct tnet_socket_s;
 
+static uint16_t port_range_start = 40000;
+static uint16_t port_range_stop = 49999;
 
 uint32_t tnet_ice_utils_get_priority(enum tnet_ice_cand_type_e type, uint16_t local_pref, tsk_bool_t is_rtp);
 int tnet_ice_utils_compute_foundation(char* foundation, tsk_size_t size);
 int tnet_ice_utils_create_sockets(enum tnet_socket_type_e socket_type, const char* local_ip, struct tnet_socket_s** socket_rtp, struct tnet_socket_s** socket_rtcp);
 int tnet_ice_utils_set_ufrag(char** ufrag);
 int tnet_ice_utils_set_pwd(char** pwd);
+int tnet_defaults_set_rtp_port_range(uint16_t start, uint16_t stop);
 
 
 #endif /* TNET_ICE_UTILS_H */
