@@ -267,6 +267,9 @@ typedef struct tsip_ssession_s {
         unsigned enable_rtcp:1;
         unsigned enable_rtcpmux:1;
     } media;
+
+    uint16_t port_range_start;
+    uint16_t port_range_stop;
 }
 tsip_ssession_t;
 

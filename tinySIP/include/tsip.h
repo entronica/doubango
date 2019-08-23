@@ -183,7 +183,7 @@ tsip_stack_param_type_t;
 #define TSIP_STACK_SET_PREFERRED_IDENTITY(URI_STR)		tsip_pname_preferred_id, (const char*)URI_STR
 #define TSIP_STACK_SET_IMPI(IMPI_STR)					tsip_pname_impi, (const char*)IMPI_STR
 #define TSIP_STACK_SET_PASSWORD(PASSORD_STR)			tsip_pname_password, (const char*)PASSORD_STR
-#define TSIP_STACK_SET_RTP_PORT_RANGE(START, STOP)		tsip_pname_rtp_port_range, (uint16_t)STOP, (uint16_t)STOP
+#define TSIP_STACK_SET_RTP_PORT_RANGE(START, STOP)		tsip_pname_rtp_port_range, (uint16_t)START, (uint16_t)STOP
 
 /* === SigComp === */
 /**@ingroup tsip_stack_group

@@ -72,6 +72,9 @@ int tsip_api_invite_send_invite(const tsip_ssession_handle_t *ss, tmedia_type_t 
         return -2;
     }
 
+    TSIP_SSESSION(_ss)->port_range_start = _ss->stack->port_range_start;
+    TSIP_SSESSION(_ss)->port_range_stop = _ss->stack->port_range_stop;
+
     va_start(ap, type);
     if((action = _tsip_action_create(tsip_atype_invite, &ap))) {
         tsk_bool_t new_dialog = tsk_false;

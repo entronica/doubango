@@ -314,7 +314,7 @@ tsip_dialog_invite_t* tsip_dialog_invite_create(const tsip_ssession_handle_t* ss
 int tsip_dialog_invite_init(tsip_dialog_invite_t *self)
 {
     /* special cases (fsm) should be tried first */
-
+    TSK_DEBUG_INFO("tsip_dialog_invite_init port start=%u stop=%u", self->rtp_port_range.start, self->rtp_port_range.stop);
     /* ICE */
     tsip_dialog_invite_ice_init(self);
     /* Client-Side dialog */
@@ -1856,12 +1856,13 @@ static tsk_object_t* tsip_dialog_invite_ctor(tsk_object_t * self, va_list * app)
 {
     tsip_dialog_invite_t *dialog = self;
     if(dialog) {
+        TSK_DEBUG_INFO("tsip_dialog_invite_ctor port start=%u stop=%u", dialog->rtp_port_range.start, dialog->rtp_port_range.stop);
         tsip_ssession_handle_t *ss = va_arg(*app, tsip_ssession_handle_t *);
         const char* call_id = va_arg(*app, const char *);
 
         /* Initialize base class */
         tsip_dialog_init(TSIP_DIALOG(self), tsip_dialog_INVITE, call_id, ss, _fsm_state_Started, _fsm_state_Terminated);
-
+        TSK_DEBUG_INFO("tsip_dialog_invite_ctor after init port start=%u stop=%u", dialog->rtp_port_range.start, dialog->rtp_port_range.stop);
         /* FSM */
         TSIP_DIALOG_GET_FSM(dialog)->debug = DEBUG_STATE_MACHINE;
         tsk_fsm_set_callback_terminated(TSIP_DIALOG_GET_FSM(dialog), TSK_FSM_ONTERMINATED_F(tsip_dialog_invite_OnTerminated), (const void*)dialog);
@@ -1884,6 +1885,9 @@ static tsk_object_t* tsip_dialog_invite_ctor(tsk_object_t * self, va_list * app)
         dialog->refersub = tsk_true;
         dialog->is_conditional_ringing_enabled = ((tsip_ssession_t*)ss)->media.enable_conditional_ringing;
         // ... do the same for preconditions, replaces, ....
+
+        dialog->rtp_port_range.start = ((tsip_ssession_t*)ss)->port_range_start;
+        dialog->rtp_port_range.stop = ((tsip_ssession_t*)ss)->port_range_stop;
 
         /* Initialize the class itself */
         tsip_dialog_invite_init(self);
