@@ -82,6 +82,9 @@ tsip_ssession_handle_t* tsip_ssession_create_2(const tsip_stack_t* stack, const 
         ss->owner = tsk_false;
     }
 
+    ss->port_range_start = stack->port_range_start;
+    ss->port_range_stop = stack->port_range_stop;
+
     return ss;
 }
 

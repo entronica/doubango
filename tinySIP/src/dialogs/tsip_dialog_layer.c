@@ -520,6 +520,8 @@ int tsip_dialog_layer_handle_incoming_msg(const tsip_dialog_layer_t *self, tsip_
         goto bail;
     }
 
+    TSK_DEBUG_INFO("tsip_dialog_layer_handle_incoming_msg port start=%u stop=%u", self->stack->port_range_start, self->stack->port_range_stop);
+    
     //tsk_safeobj_lock(self);
     dialog = tsip_dialog_layer_find(self, message->Call_ID->value,
                                     TSIP_MESSAGE_IS_RESPONSE(message) ? message->To->tag : message->From->tag,
@@ -634,6 +636,7 @@ int tsip_dialog_layer_handle_incoming_msg(const tsip_dialog_layer_t *self, tsip_
             case tsip_INVITE: {
                 /* incoming INVITE */
                 if((ss = tsip_ssession_create_2(self->stack, message))) {
+                    TSK_DEBUG_INFO("tsip_dialog_layer_handle_incoming_msg port start=%u stop=%u", self->stack->port_range_start, self->stack->port_range_stop);
                     newdialog = (tsip_dialog_t*)tsip_dialog_invite_create(ss, message->Call_ID ? message->Call_ID->value : tsk_null);
                 }
                 break;

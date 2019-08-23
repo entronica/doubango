@@ -43,6 +43,7 @@ typedef int (*tnet_ice_callback_f)(const struct tnet_ice_event_s *e);
 typedef int (*tnet_ice_rtp_callback_f)(const void* callback_data, const uint8_t* data_ptr, tsk_size_t data_size, tnet_fd_t local_fd, const struct sockaddr_storage* remote_addr);
 
 TINYNET_API struct tnet_ice_ctx_s* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata);
+TINYNET_API struct tnet_ice_ctx_s* tnet_ice_ctx_create2(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata, uint16_t port_start, uint16_t port_stop);
 TINYNET_API int tnet_ice_ctx_set_userdata(struct tnet_ice_ctx_s* self, const void* userdata);
 //@deprecated: Use "tnet_ice_ctx_add_server()"
 TNET_DEPRECATED(TINYNET_API int tnet_ice_ctx_set_stun(

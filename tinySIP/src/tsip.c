@@ -469,8 +469,10 @@ static int __tsip_stack_set(tsip_stack_t *self, va_list* app)
 
         /* === User Data === */
         case tsip_pname_rtp_port_range: {
-            self->port_range_start = va_arg(*app, uint16_t);
-            self->port_range_stop = va_arg(*app, uint16_t);
+            unsigned start = va_arg(*app, unsigned);
+            unsigned stop = va_arg(*app, unsigned);
+            self->port_range_start = start;
+            self->port_range_stop = stop;
             break;
         }
 

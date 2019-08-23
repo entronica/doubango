@@ -439,7 +439,7 @@ int tmedia_defaults_set_rtp_port_range(uint16_t start, uint16_t stop)
         TSK_DEBUG_ERROR("Invalid parameter: (%u < 1024 || %u < 1024 || %u >= %u)", start, stop, start, stop);
         return -1;
     }
-    TSK_DEBUG_INFO("Set rtp port range: %u to %u", start, stop);
+    TSK_DEBUG_INFO("tmedia Set rtp port range: %u to %u", start, stop);
     __rtp_port_range_start = start;
     __rtp_port_range_stop = stop;
     return 0;

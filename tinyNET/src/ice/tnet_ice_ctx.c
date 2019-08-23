@@ -493,6 +493,77 @@ tnet_ice_ctx_t* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv
     ctx->multicast = tsk_false;
     ctx->rtp_port_range.start = rtp_port->start;
     ctx->rtp_port_range.stop  = rtp_port->stop;
+    TSK_DEBUG_INFO("tnet_ice_ctx_create port start=%u stop=%u", rtp_port->start, rtp_port->stop);
+    tnet_ice_utils_set_ufrag(&ctx->ufrag);
+    tnet_ice_utils_set_pwd(&ctx->pwd);
+
+    ctx->fsm->debug = TNET_ICE_DEBUG_STATE_MACHINE;
+    tsk_fsm_set_callback_terminated(ctx->fsm, TSK_FSM_ONTERMINATED_F(_tnet_ice_ctx_fsm_OnTerminated), (const void*)ctx);
+    tsk_fsm_set(ctx->fsm,
+                // (Started) -> (GatherHostCandidates) -> (GatheringHostCandidates)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_Started, _fsm_action_GatherHostCandidates, _fsm_state_GatheringHostCandidates, _tnet_ice_ctx_fsm_Started_2_GatheringHostCandidates_X_GatherHostCandidates, "ICE_Started_2_GatheringHostCandidates_X_GatherHostCandidates"),
+                // (GatheringHostCandidates) -> (Success) -> (GatheringHostCandidatesDone)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringHostCandidates, _fsm_action_Success, _fsm_state_GatheringHostCandidatesDone, _tnet_ice_ctx_fsm_GatheringHostCandidates_2_GatheringHostCandidatesDone_X_Success, "ICE_GatheringHostCandidates_2_GatheringHostCandidatesDone_X_Success"),
+                // (GatheringHostCandidates) -> (Failure) -> (Terminated)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringHostCandidates, _fsm_action_Failure, _fsm_state_Terminated, _tnet_ice_ctx_fsm_GatheringHostCandidates_2_Terminated_X_Failure, "ICE_GatheringHostCandidates_2_Terminated_X_Failure"),
+
+                // (GatheringHostCandidatesDone) -> (GatherReflexiveCandidates) -> (GatheringReflexiveCandidates)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringHostCandidatesDone, _fsm_action_GatherReflexiveCandidates, _fsm_state_GatheringReflexiveCandidates, _tnet_ice_ctx_fsm_GatheringHostCandidatesDone_2_GatheringReflexiveCandidates_X_GatherReflexiveCandidates, "ICE_GatheringHostCandidatesDone_2_GatheringReflexiveCandidates_X_GatherReflexiveCandidates"),
+                // (GatheringReflexiveCandidates) -> (Success) -> GatheringReflexiveCandidatesDone
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringReflexiveCandidates, _fsm_action_Success, _fsm_state_GatheringReflexiveCandidatesDone, _tnet_ice_ctx_fsm_GatheringReflexiveCandidates_2_GatheringReflexiveCandidatesDone_X_Success, "ICE_fsm_GatheringReflexiveCandidates_2_GatheringReflexiveCandidatesDone_X_Success"),
+                // (GatheringReflexiveCandidates) -> (Failure) -> Terminated
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringReflexiveCandidates, _fsm_action_Failure, _fsm_state_Terminated, _tnet_ice_ctx_fsm_GatheringReflexiveCandidates_2_Terminated_X_Failure, "ICE_GatheringReflexiveCandidates_2_Terminated_X_Failure"),
+
+                // (GatheringReflexiveCandidatesDone) -> (GatherRelayCandidates) -> (GatheringRelayCandidates)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringReflexiveCandidatesDone, _fsm_action_GatherRelayCandidates, _fsm_state_GatheringRelayCandidates, _tnet_ice_ctx_fsm_GatheringReflexiveCandidatesDone_2_GatheringRelayCandidates_X_GatherRelayCandidates, "ICE_GatheringReflexiveCandidatesDone_2_GatheringRelayCandidates_X_GatherRelayCandidates"),
+                // (GatheringHostCandidatesDone) -> (GatherRelayCandidates) -> (GatheringRelayCandidates)
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringHostCandidatesDone, _fsm_action_GatherRelayCandidates, _fsm_state_GatheringRelayCandidates, _tnet_ice_ctx_fsm_GatheringReflexiveCandidatesDone_2_GatheringRelayCandidates_X_GatherRelayCandidates, "ICE_GatheringHostCandidatesDone_2_GatheringRelayCandidates_X_GatherRelayCandidates"),
+                // (GatheringRelayCandidates) -> (Success) -> GatheringRelayCandidatesDone
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringRelayCandidates, _fsm_action_Success, _fsm_state_GatheringRelayCandidatesDone, _tnet_ice_ctx_fsm_GatheringRelayCandidates_2_GatheringRelayCandidatesDone_X_Success, "ICE_fsm_GatheringRelayCandidates_2_GatheringRelayCandidatesDone_X_Success"),
+                // (GatheringRelayCandidates) -> (Failure) -> Terminated
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringRelayCandidates, _fsm_action_Failure, _fsm_state_Terminated, _tnet_ice_ctx_fsm_GatheringRelayCandidates_2_Terminated_X_Failure, "ICE_GatheringRelayCandidates_2_Terminated_X_Failure"),
+
+                // (GatheringComplet) -> (ConnCheck) -> ConnChecking
+                TSK_FSM_ADD_ALWAYS(_fsm_state_GatheringCompleted, _fsm_action_ConnCheck, _fsm_state_ConnChecking, _tnet_ice_ctx_fsm_GatheringCompleted_2_ConnChecking_X_ConnCheck, "ICE_GatheringCompleted_2_ConnChecking_X_ConnCheck"),
+                // (ConnChecking) -> (Success) -> ConnCheckingCompleted
+                TSK_FSM_ADD_ALWAYS(_fsm_state_ConnChecking, _fsm_action_Success, _fsm_state_ConnCheckingCompleted, _tnet_ice_ctx_fsm_ConnChecking_2_ConnCheckingCompleted_X_Success, "ICE_ConnChecking_2_ConnCheckingCompleted_X_Success"),
+                // (ConnChecking) -> (Failure) -> Terminated
+                TSK_FSM_ADD_ALWAYS(_fsm_state_ConnChecking, _fsm_action_Failure, _fsm_state_Terminated, _tnet_ice_ctx_fsm_ConnChecking_2_Terminated_X_Failure, "ICE_ConnChecking_2_Terminated_X_Failure"),
+
+                // (Any) -> (GatheringComplet) -> GatheringCompleted
+                TSK_FSM_ADD_ALWAYS(tsk_fsm_state_any, _fsm_action_GatheringComplet, _fsm_state_GatheringCompleted, _tnet_ice_ctx_fsm_Any_2_GatheringCompleted_X_GatheringComplet, "ICE_Any_2_GatheringCompleted_X_GatheringComplet"),
+                // (Any) -> (Cancel) -> Started
+                TSK_FSM_ADD_ALWAYS(tsk_fsm_state_any, _fsm_action_Cancel, _fsm_state_Started, _tnet_ice_ctx_fsm_Any_2_Started_X_Cancel, "ICE_Any_2_Started_X_Cancel"),
+                // (Any) -> (AnyNotStarted) -> Terminated
+                TSK_FSM_ADD(tsk_fsm_state_any, tsk_fsm_action_any, _tnet_ice_ctx_fsm_cond_NotStarted, _fsm_state_Terminated, _tnet_ice_ctx_fsm_Any_2_Terminated_X_AnyNotStarted, "ICE_fsm_Any_2_Terminated_X_AnyNotStarted")
+               );
+
+    return ctx;
+}
+
+tnet_ice_ctx_t* tnet_ice_ctx_create2(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata, uint16_t port_start, uint16_t port_stop)
+{
+    tnet_ice_ctx_t* ctx;
+    rtp_port_range_t *rtp_port = (rtp_port_range_t *) userdata;
+
+    if (!(ctx = tsk_object_new(&tnet_ice_ctx_def_s))) {
+        TSK_DEBUG_ERROR("Failed to create ICE context object");
+        return tsk_null;
+    }
+
+    ctx->is_ice_jingle = is_ice_jingle;
+    ctx->use_ipv6 = use_ipv6;
+    ctx->use_rtcp = use_rtcp;
+    ctx->is_video = is_video;
+    ctx->callback = callback;
+    ctx->userdata = userdata;
+    ctx->unicast = tsk_true;
+    ctx->anycast = tsk_false;
+    ctx->multicast = tsk_false;
+    ctx->rtp_port_range.start = port_start;
+    ctx->rtp_port_range.stop  = port_stop;
+    
+    TSK_DEBUG_INFO("tnet_ice_ctx_create2 port start=%u stop=%u", port_start, port_stop);
 
     tnet_ice_utils_set_ufrag(&ctx->ufrag);
     tnet_ice_utils_set_pwd(&ctx->pwd);
@@ -1215,7 +1286,7 @@ static int _tnet_ice_ctx_fsm_Started_2_GatheringHostCandidates_X_GatherHostCandi
             continue;
         }
 
-        ret = tnet_defaults_set_rtp_port_range(self->rtp_port_range.start, self->rtp_port_range.start);
+        ret = tnet_defaults_set_rtp_port_range(self->rtp_port_range.start, self->rtp_port_range.stop);
 
         // host candidates
 		ret = tnet_ice_utils_create_sockets((address->family == AF_INET6) ? tnet_socket_type_udp_ipv6 : tnet_socket_type_udp_ipv4,

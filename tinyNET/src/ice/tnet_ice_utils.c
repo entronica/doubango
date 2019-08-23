@@ -80,9 +80,12 @@ int tnet_defaults_set_rtp_port_range(uint16_t start, uint16_t stop)
 {
     if(start < 1024 || stop < 1024 || start >= stop) {
         TSK_DEBUG_ERROR("Invalid parameter: (%u < 1024 || %u < 1024 || %u >= %u)", start, stop, start, stop);
+        TSK_DEBUG_INFO("Use default port range: %u to %u", 40000, 49999);
+        port_range_start = 40000;
+        port_range_stop = 49999;
         return -1;
     }
-    TSK_DEBUG_INFO("Set rtp port range: %u to %u", start, stop);
+    TSK_DEBUG_INFO("tnet Set rtp port range: %u to %u", start, stop);
     port_range_start = start;
     port_range_stop = stop;
     return 0;
