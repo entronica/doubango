@@ -1428,15 +1428,28 @@ int tmedia_session_mgr_set_ro(tmedia_session_mgr_t* self, const tsdp_message_t* 
     if (self->started) {
         for (index = 0; index < m_lines_count; ++index) {
             if (/* && (!is_ro_loopback_address[index]) && */ ((is_ro_codecs_changed[index] && !is_local_encoder_still_ok[index]) || is_ro_network_info_changed[index] || is_dtls_fingerprint_changed[index] || is_sdes_crypto_changed[index])) {
+                TSK_DEBUG_INFO("!is_ro_loopback_address[index]=%d\n"
+                "is_ro_codecs_changed[index]=%d\n"
+                "!is_local_encoder_still_ok[index]=%d\n"
+                "is_ro_network_info_changed[index]=%d\n"
+                "is_dtls_fingerprint_changed[index]=%d\n"
+                "is_sdes_crypto_changed[index]=%d\n", 
+                !is_ro_loopback_address[index],
+                is_ro_codecs_changed[index],
+                !is_local_encoder_still_ok[index],
+                is_ro_network_info_changed[index],
+                is_dtls_fingerprint_changed[index],
+                is_sdes_crypto_changed[index]);
                 TSK_DEBUG_INFO("Stop media index %d to reconf", (int)index);
                 stopped_to_reconf[index] = tsk_true;
-                tmedia_session_mgr_set(self,
-                                       TMEDIA_SESSION_SET_INT32(media_types[index], "stop-to-reconf", stopped_to_reconf[index]),
-                                       TMEDIA_SESSION_SET_NULL());
-                if ((ret = _tmedia_session_mgr_stop(self, (int)index))) {
-                    TSK_DEBUG_ERROR("Failed to stop session manager");
-                    goto bail;
-                }
+                TSK_DEBUG_INFO("ignore change");
+                // tmedia_session_mgr_set(self,
+                //                        TMEDIA_SESSION_SET_INT32(media_types[index], "stop-to-reconf", stopped_to_reconf[index]),
+                //                        TMEDIA_SESSION_SET_NULL());
+                // if ((ret = _tmedia_session_mgr_stop(self, (int)index))) {
+                //     TSK_DEBUG_ERROR("Failed to stop session manager");
+                //     goto bail;
+                // }
             }
         }
     }
@@ -1450,6 +1463,7 @@ int tmedia_session_mgr_set_ro(tmedia_session_mgr_t* self, const tsdp_message_t* 
     	- "is_ro_hold_resume_changed" do not restart the session but updates the SDP
     	*/
     if (self->started && !(__flags_sum((const tsk_bool_t*)&is_ro_hold_resume_changed, m_lines_count) || __flags_sum((const tsk_bool_t*)&stopped_to_reconf, m_lines_count) || is_ro_media_lines_changed)) {
+        TSK_DEBUG_INFO("no need to update");
         goto end_of_sessions_update;
     }
 
@@ -1684,7 +1698,7 @@ tsk_bool_t tmedia_session_mgr_is_held(tmedia_session_mgr_t* self, tmedia_type_t 
 {
     const tsk_list_item_t* item;
     tsk_bool_t have_these_sessions = tsk_false;
-
+    TSK_DEBUG_INFO("checking hold call");
     if (!self) {
         TSK_DEBUG_ERROR("Invalid parameter");
         return tsk_false;
@@ -1723,6 +1737,7 @@ int tmedia_session_mgr_resume(tmedia_session_mgr_t* self, tmedia_type_t type, ts
 {
     const tsk_list_item_t* item;
     int ret = 0;
+    TSK_DEBUG_INFO("Resume call");
     if (!self) {
         TSK_DEBUG_ERROR("Invalid parameter");
         return -1;

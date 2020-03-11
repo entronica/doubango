@@ -35,7 +35,10 @@ libtinySAK_la_SOURCES  = \
 	src/tsk_timer.c\
 	src/tsk_url.c\
 	src/tsk_uuid.c\
-	src/tsk_xml.c
+	src/tsk_xml.c\
+	src/my_debug.c\
+	src/tsk_stat.c\
+	src/app_log.c
 	
 libtinySAK_la_LDFLAGS = $LDFLAGS -no-undefined
 if TARGET_OS_IS_ANDROID

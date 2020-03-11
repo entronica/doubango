@@ -1540,7 +1540,7 @@ int tdav_session_av_set_ro(tdav_session_av_t* self, const struct tsdp_header_M_s
     }
 
     /* SRTP */
-#if HAVE_SRTP
+//#if HAVE_SRTP
     // this is SRTP negotiation -> do not trust the remote profile
     if(is_srtp_dtls_local_enabled || is_srtp_sdes_local_enabled) {
         int32_t i, j;
@@ -1750,7 +1750,7 @@ int tdav_session_av_set_ro(tdav_session_av_t* self, const struct tsdp_header_M_s
     trtp_manager_set_srtp_type_remote(self->rtp_manager,
                                       srtp_sdes_neg_ok ? tmedia_srtp_type_sdes : (srtp_dtls_neg_ok ? tmedia_srtp_type_dtls : tmedia_srtp_type_none));
 
-#endif
+//#endif
 
     // set actual config
     if(acfg_idx == -1) {

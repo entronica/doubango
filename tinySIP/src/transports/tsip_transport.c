@@ -36,6 +36,7 @@
 #include "tsk_string.h"
 #include "tsk_buffer.h"
 #include "tsk_debug.h"
+#include "tsk_stat.h"
 
 // Number of active peers before we start cleanup up (check for timeouts)
 #if !defined(TSIP_TRANSPORT_STREAM_PEERS_COUNT_BEFORE_CHECKING_TIMEOUT)
@@ -327,9 +328,10 @@ int tsip_transport_msg_update(const tsip_transport_t* self, tsip_message_t *msg)
 tsk_size_t tsip_transport_send_raw(const tsip_transport_t* self, const char* dst_host, tnet_port_t dst_port, const void* data, tsk_size_t size, const char* callid)
 {
     tsk_size_t ret = 0;
-
+    tsk_stat_increase(TSK_STAT_SENT_MESSAGE);
+    tsk_stat_increase(TSK_STAT_SIP_SENT);
     TSK_DEBUG_INFO("\n\nSEND: %.*s\n\n", size, (const char*)data);
-
+    TSK_APP_INFO("Sip Sending %.*s" , size, (const char*)data);
     if(TNET_SOCKET_TYPE_IS_DGRAM(self->type)) { // "udp" or "dtls"
         const struct sockaddr_storage* to = &self->pcscf_addr;
         struct sockaddr_storage dst_addr; // must be local scope
@@ -340,6 +342,7 @@ tsk_size_t tsip_transport_send_raw(const tsip_transport_t* self, const char* dst
         }
         if(!(ret = tnet_transport_sendto(self->net_transport, self->connectedFD, (const struct sockaddr*)to, data, size))) {
             TSK_DEBUG_ERROR("Send(%u) returns zero", size);
+            TSK_APP_ERROR("Send(%u) returns zero", size);
         }
     }
     else { // "sctp", "tcp" or "tls"
@@ -475,7 +478,9 @@ tsk_size_t tsip_transport_send_raw_ws(const tsip_transport_t* self, tnet_fd_t lo
     }
     // send() data
     ret = tnet_transport_send(self->net_transport, local_fd, peer->ws.snd_buffer, (tsk_size_t)data_size);
-
+    tsk_stat_increase(TSK_STAT_SENT_MESSAGE);
+    tsk_stat_increase(TSK_STAT_WEBSOCKET_SENT);
+    TSK_APP_INFO("Websocket Sending %.*s" , size, (const char*)data);
     TSK_OBJECT_SAFE_FREE(peer);
 
     return ret;

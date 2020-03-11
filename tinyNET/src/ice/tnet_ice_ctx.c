@@ -2426,6 +2426,7 @@ static int _tnet_ice_ctx_recv_stun_message_for_pair(tnet_ice_ctx_t* self, const 
                         // Before sending the success response check that there are no role conflict
                         if (self->is_controlling) { // I'm ICE-CONTROLLING
                             const tnet_stun_attr_vdata_t* stun_att_ice_controlling;
+                             TSK_DEBUG_INFO("I'm ICE-CONTROLLING");
                             if ((ret = tnet_stun_pkt_attr_find_first(message, tnet_stun_attr_type_ice_controlling, (const tnet_stun_attr_t**)&stun_att_ice_controlling)) == 0 && stun_att_ice_controlling) {
                                 TSK_DEBUG_WARN("Role conflicts (SEND)");
                                 if (self->tie_breaker >= *((uint64_t*)stun_att_ice_controlling->p_data_ptr)) {
@@ -2441,6 +2442,7 @@ static int _tnet_ice_ctx_recv_stun_message_for_pair(tnet_ice_ctx_t* self, const 
                             else;
                         }
                         else { // I'm ICE-CONTROLLED
+                            TSK_DEBUG_INFO("I'm ICE-CONTROLLED");
                             const tnet_stun_attr_vdata_t* stun_att_ice_controlled;
                             if ((ret = tnet_stun_pkt_attr_find_first(message, tnet_stun_attr_type_ice_controlled, (const tnet_stun_attr_t**)&stun_att_ice_controlled)) == 0 && stun_att_ice_controlled) {
                                 TSK_DEBUG_WARN("Role conflicts (SEND)");

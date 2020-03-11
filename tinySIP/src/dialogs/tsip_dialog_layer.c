@@ -520,8 +520,6 @@ int tsip_dialog_layer_handle_incoming_msg(const tsip_dialog_layer_t *self, tsip_
         goto bail;
     }
 
-    TSK_DEBUG_INFO("tsip_dialog_layer_handle_incoming_msg port start=%u stop=%u", self->stack->port_range_start, self->stack->port_range_stop);
-    
     //tsk_safeobj_lock(self);
     dialog = tsip_dialog_layer_find(self, message->Call_ID->value,
                                     TSIP_MESSAGE_IS_RESPONSE(message) ? message->To->tag : message->From->tag,

@@ -675,6 +675,27 @@ tsk_bool_t tnet_dtls_socket_is_handshake_completed(const tnet_dtls_socket_handle
     return (handle && ((const tnet_dtls_socket_t *)handle)->handshake_completed);
 }
 
+const char* SSL_handshake_to_string( uint8_t handshake_type ){
+    switch( handshake_type ) {
+        case 0x01: 
+            return "Client Hello";
+        case 0x02:
+            return "Server Hello";
+        case 0x04:
+            return "New Session Ticket";
+        case 0x0b:
+            return "Certificate";
+        case 0x0c:
+            return "Server Key Exchange";
+        case 0x0d:
+            return "Certificate Request";
+        case 0x0e:
+            return "Server Hello Done";
+        default:
+            return "Unknown Handshake_type";
+    }
+}
+
 /*
 Handles DTLS data received over the network using standard functions (e.g. recvfrom())
 @param handle
@@ -718,6 +739,45 @@ int tnet_dtls_socket_handle_incoming_data(tnet_dtls_socket_handle_t* handle, con
         TSK_DEBUG_ERROR("BIO_write(rbio, %lu) failed [%s]", (unsigned long)size, ERR_error_string(ERR_get_error(), tsk_null));
         ret = -1;
         goto bail;
+    }
+
+    const uint8_t* pData = (const uint8_t*)data;
+    TSK_DEBUG_INFO("dtls first byte [%lu]", pData[0]);
+    if(size > 2 ) {
+        switch( pData[0] ){
+            case 0x16:
+                TSK_DEBUG_INFO("dtls content-type: Handshake");
+                if( size > 14){
+                    TSK_DEBUG_INFO("dtls Handshake type: %s", SSL_handshake_to_string(pData[13]));
+                } else {
+                    TSK_DEBUG_INFO("dtls Handshake type: Insufficient size");
+                }
+                break;
+            case 0x15:
+                TSK_DEBUG_INFO("dtls content-type: Alert");
+                break;
+            case 0x14:
+                TSK_DEBUG_INFO("dtls content-type: Change Cipher Spec");
+                break;
+            default:
+                TSK_DEBUG_INFO("dtls content-type: Unknown (%d)", pData[0]);
+                break;
+        }
+        
+    }
+    if(size > 14 && pData[0] == 0x15){ // content-type=='Alert'
+        if((socket->setup == tnet_dtls_setup_active || socket->setup == tnet_dtls_setup_actpass)){
+    	    TSK_DEBUG_INFO("DTLS are receiving 'Alert' messages. this connection will be reset up  on setup:passive mode");
+    	    //tnet_dtls_socket_set_setup(socket, tnet_dtls_setup_passive);
+            //TSK_DEBUG_INFO("DTLS are receiving 'Alert' messages. this connection will set handshake_completed = 0 on set:passive");
+            //socket->handshake_completed = 0 ;
+    	}
+    	else if((socket->setup == tnet_dtls_setup_passive || socket->setup == tnet_dtls_setup_actpass)){
+    	    TSK_DEBUG_INFO("DTLS are receiving 'Alert' messages. this connection will be reset up on setup:active mode");
+    	    //tnet_dtls_socket_set_setup(socket, tnet_dtls_setup_active);
+            //TSK_DEBUG_INFO("DTLS are receiving 'Alert' messages. this connection will set handshake_completed = 0 on set:active");
+            //socket->handshake_completed = 0 ;
+    	}
     }
 
     /*if((ret = SSL_read(socket->ssl, (void*)data, size)) <= 0){
