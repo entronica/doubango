@@ -42,6 +42,8 @@
 
 #include "tsk_thread.h"
 #include "tsk_debug.h"
+#include "tsk_stat.h"
+#include "app_log.h"
 
 static const char* __null_callid = tsk_null;
 
@@ -139,7 +141,10 @@ static int tsip_transport_layer_stream_cb(const tnet_transport_event_t* e)
 
     switch(e->type) {
     case event_data: {
+        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
+        tsk_stat_increase(TSK_STAT_SIP_RECV);
         TSK_DEBUG_INFO("\n\nRECV:%.*s\n\n", e->size, (const char*)e->data);
+        TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data);
         break;
     }
     case event_closed:
@@ -601,6 +606,9 @@ parse_buffer:
 
     // If we are there this mean that we have all SIP headers.
     //	==> Parse the SIP message without the content.
+    tsk_stat_increase(TSK_STAT_WEBSOCKET_RECV);
+    tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
+    TSK_APP_INFO("Websocket Receiving %.*s", pay_len, (const char*)peer->ws.rcv_buffer);
     TSK_DEBUG_INFO("Receiving SIP o/ WebSocket message: %.*s", pay_len, (const char*)peer->ws.rcv_buffer);
     tsk_ragel_state_init(&state, peer->ws.rcv_buffer, (tsk_size_t)pay_len);
     if (tsip_message_parse(&state, &message, tsk_false/* do not extract the content */) == tsk_true) {
@@ -655,7 +663,10 @@ static int tsip_transport_layer_dgram_cb(const tnet_transport_event_t* e)
 
     switch(e->type) {
     case event_data: {
+        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
+        tsk_stat_increase(TSK_STAT_SIP_RECV);
         TSK_DEBUG_INFO("\n\nRECV:%.*s\n\n", e->size, (const char*)e->data);
+        TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data);       
         break;
     }
     case event_closed:

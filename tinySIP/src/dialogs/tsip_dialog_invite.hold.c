@@ -233,6 +233,7 @@ int tsip_dialog_invite_hold_handle(tsip_dialog_invite_t* self, const tsip_reques
     bodiless_invite = !TSIP_MESSAGE_HAS_CONTENT(rINVITEorUPDATE) && TSIP_REQUEST_IS_INVITE(rINVITEorUPDATE);
     if(bodiless_invite && remote_hold) {
         // resume remote
+        TSK_DEBUG_INFO("resume...");
         if((ret = tmedia_session_mgr_resume(self->msession_mgr, self->msession_mgr->type, tsk_false)) == 0) {
             remote_hold = tsk_false;
         }

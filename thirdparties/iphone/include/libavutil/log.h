@@ -105,13 +105,13 @@ typedef struct AVClass {
     /**
      * Category used for visualization (like color)
      * This is only set if the category is equal for all objects using this class.
-     * available since version (51 << 16 | 56 << 8 | 100)
+     * available since version (51 << 16 | 56 << 8,00)
      */
     AVClassCategory category;
 
     /**
      * Callback to return the category.
-     * available since version (51 << 16 | 59 << 8 | 100)
+     * available since version (51 << 16 | 59 << 8,00)
      */
     AVClassCategory (*get_category)(void* ctx);
 } AVClass;

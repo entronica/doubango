@@ -52,6 +52,7 @@
 #include "tinymedia/tmedia_defaults.h"
 
 #include "tsk_debug.h"
+#include "tsk_stat.h"
 
 #if METROPOLIS
 #	define TSIP_INFO_FASTUPDATE_OUT_INTERVAL_MIN		0 // millis
@@ -218,33 +219,43 @@ int tsip_dialog_invite_event_callback(const tsip_dialog_invite_t *self, tsip_dia
             }
             else { /* Request */
                 if(TSIP_REQUEST_IS_INVITE(msg)) { // INVITE
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_INVITE);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iINVITE, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_UPDATE(msg)) { // UPDATE
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_UPDATE);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iUPDATE, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_PRACK(msg)) { // PRACK
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_PRACK);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iPRACK, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_ACK(msg)) { // ACK
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_ACK);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iACK, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_OPTIONS(msg)) { // OPTIONS
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_OPTIONS);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iOPTIONS, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_BYE(msg)) { // BYE
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_BYE);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iBYE, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_CANCEL(msg)) { // CANCEL
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_CANCEL);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iCANCEL, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_INFO(msg)) { // INFO
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_INFO);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iINFO, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_NOTIFY(msg)) { // NOTIFY
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_NOTIFY);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iNOTIFY, msg, tsk_null);
                 }
                 else if(TSIP_REQUEST_IS_REFER(msg)) { // REFER
+                    tsk_stat_increase(TSK_STAT_SIP_REQUEST_REFER);
                     ret = tsip_dialog_fsm_act(TSIP_DIALOG(self), _fsm_action_iREFER, msg, tsk_null);
                 }
             }
@@ -630,10 +641,13 @@ int x0000_Connected_2_Connected_X_iINVITEorUPDATE(va_list *app)
     tsk_bool_t force_sdp;
 
     /* process remote offer */
+    TSK_DEBUG_INFO("before process remote offer : tsip_dialog_invite_process_ro");
     if((ret = tsip_dialog_invite_process_ro(self, rINVITEorUPDATE))) {
         /* Send error */
+        TSK_DEBUG_ERROR("Error occurred : %d", ret);
         return ret;
     }
+     TSK_DEBUG_INFO("after process remote offer : tsip_dialog_invite_process_ro");
 
     // force SDP in 200 OK even if the request has the same SDP version
     force_sdp = TSIP_MESSAGE_HAS_CONTENT(rINVITEorUPDATE);
@@ -663,7 +677,9 @@ int x0000_Connected_2_Connected_X_iINVITEorUPDATE(va_list *app)
     }
 
     /* hold/resume */
+    TSK_DEBUG_INFO("Before calling tsip_dialog_invite_hold_handle");
     tsip_dialog_invite_hold_handle(self, rINVITEorUPDATE);
+    TSK_DEBUG_INFO("After calling tsip_dialog_invite_hold_handle");
 
     // send the response
     ret = send_RESPONSE(self, rINVITEorUPDATE, 200, "OK",

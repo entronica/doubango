@@ -17,6 +17,10 @@
 *
 */
 
+#include <sys/time.h>
+#include <stdio.h>      /* puts, printf */
+#include <time.h>       /* time_t, struct tm, time, localtime */
+
 /**@file tsk_debug.c
  * @brief Utility functions for debugging purpose.
  */
@@ -27,9 +31,7 @@
 
 #if TSK_HAVE_DEBUG_H
 // Nothing to do --> all is up to the end-user application
-#else
-
-static const void* tsk_debug_arg_data = tsk_null;
+static const void *tsk_debug_arg_data = tsk_null;
 static tsk_debug_f tsk_debug_info_cb = tsk_null;
 static tsk_debug_f tsk_debug_warn_cb = tsk_null;
 static tsk_debug_f tsk_debug_error_cb = tsk_null;
@@ -41,7 +43,7 @@ static int tsk_debug_level = DEBUG_LEVEL;
 * @param arg_data The callback data.
 * @sa @ref tsk_debug_get_arg_data()
 */
-void tsk_debug_set_arg_data(const void* arg_data)
+void tsk_debug_set_arg_data(const void *arg_data)
 {
     tsk_debug_arg_data = arg_data;
 }
@@ -50,7 +52,121 @@ void tsk_debug_set_arg_data(const void* arg_data)
 * @retval The callback data.
 * @sa @ref tsk_debug_set_arg_data()
 */
-const void* tsk_debug_get_arg_data()
+const void *tsk_debug_get_arg_data()
+{
+    return tsk_debug_arg_data;
+}
+/**@ingroup tsk_debug_group
+* Sets the callback function to call when @ref TSK_DEBUG_INFO() is internally used.
+* @param cb A pointer to the callback function.
+* @sa @ref tsk_debug_set_warn_cb() @ref tsk_debug_set_error_cb() @ref tsk_debug_set_fatal_cb().
+*/
+void tsk_debug_set_info_cb(tsk_debug_f cb)
+{
+    tsk_debug_info_cb = cb;
+}
+/**@ingroup tsk_debug_group
+* Gets the callback function defined using @ref tsk_debug_set_info_cb().
+* @retval A pointer to the callback function.
+*/
+tsk_debug_f tsk_debug_get_info_cb()
+{
+    return tsk_debug_info_cb;
+}
+/**@ingroup tsk_debug_group
+* Sets the callback function to call when @ref TSK_DEBUG_WARN() is internally used.
+* @param cb A pointer to the callback function.
+* @sa @ref tsk_debug_set_info_cb() @ref tsk_debug_set_error_cb() @ref tsk_debug_set_fatal_cb().
+*/
+void tsk_debug_set_warn_cb(tsk_debug_f cb)
+{
+    tsk_debug_warn_cb = cb;
+}
+/**@ingroup tsk_debug_group
+* Gets the callback function defined using @ref tsk_debug_set_warn_cb().
+* @retval A pointer to the callback function.
+*/
+tsk_debug_f tsk_debug_get_warn_cb()
+{
+    return tsk_debug_warn_cb;
+}
+/**@ingroup tsk_debug_group
+* Sets the callback function to call when @ref TSK_DEBUG_ERROR() is internally used.
+* @param cb A pointer to the callback function.
+* @sa @ref tsk_debug_set_info_cb() @ref tsk_debug_set_warn_cb() @ref tsk_debug_set_fatal_cb().
+*/
+void tsk_debug_set_error_cb(tsk_debug_f cb)
+{
+    tsk_debug_error_cb = cb;
+}
+/**@ingroup tsk_debug_group
+* Gets the callback function defined using @ref tsk_debug_set_error_cb().
+* @retval A pointer to the callback function.
+*/
+tsk_debug_f tsk_debug_get_error_cb()
+{
+    return tsk_debug_error_cb;
+}
+/**@ingroup tsk_debug_group
+* Sets the callback function to call when @ref TSK_DEBUG_FATAL() is internally used.
+* @param cb A pointer to the callback function.
+* @sa @ref tsk_debug_set_info_cb() @ref tsk_debug_set_warn_cb() @ref tsk_debug_set_error_cb().
+*/
+void tsk_debug_set_fatal_cb(tsk_debug_f cb)
+{
+    tsk_debug_fatal_cb = cb;
+}
+/**@ingroup tsk_debug_group
+* Gets the callback function defined using @ref tsk_debug_set_fatal_cb().
+* @retval A pointer to the callback function.
+*/
+tsk_debug_f tsk_debug_get_fatal_cb()
+{
+    return tsk_debug_fatal_cb;
+}
+/**@ingroup tsk_debug_group
+* Gets the debug level defined using @ref tsk_debug_set_level.
+* @retval The debug level. <b>Must be</b>: @ref DEBUG_LEVEL_INFO, @ref DEBUG_LEVEL_WARN, @ref DEBUG_LEVEL_ERROR or @ref DEBUG_LEVEL_FATAL.
+* @sa @ref tsk_debug_set_level()
+*/
+int tsk_debug_get_level()
+{
+    return tsk_debug_level;
+}
+/**@ingroup tsk_debug_group
+* Sets the debug level.
+* @param level The debug level. <b>Must be</b>: @ref DEBUG_LEVEL_INFO, @ref DEBUG_LEVEL_WARN, @ref DEBUG_LEVEL_ERROR or @ref DEBUG_LEVEL_FATAL.
+* @sa @ref tsk_debug_get_level()
+*/
+void tsk_debug_set_level(int level)
+{
+    tsk_debug_level = level;
+}
+
+#else
+
+static const void *tsk_debug_arg_data = tsk_null;
+static tsk_debug_f tsk_debug_info_cb = tsk_null;
+static tsk_debug_f tsk_debug_warn_cb = tsk_null;
+static tsk_debug_f tsk_debug_error_cb = tsk_null;
+static tsk_debug_f tsk_debug_fatal_cb = tsk_null;
+static int tsk_debug_level = DEBUG_LEVEL;
+
+/**@ingroup tsk_debug_group
+* Defines the callback data. Will be the @a arg parameter for the callback function.
+* @param arg_data The callback data.
+* @sa @ref tsk_debug_get_arg_data()
+*/
+void tsk_debug_set_arg_data(const void *arg_data)
+{
+    tsk_debug_arg_data = arg_data;
+}
+/**@ingroup tsk_debug_group
+* Gets the callback data passed to the framework using @ref tsk_debug_set_arg_data().
+* @retval The callback data.
+* @sa @ref tsk_debug_set_arg_data()
+*/
+const void *tsk_debug_get_arg_data()
 {
     return tsk_debug_arg_data;
 }
@@ -143,7 +259,6 @@ void tsk_debug_set_level(int level)
 
 #endif /* TSK_HAVE_DEBUG_H */
 
-
 /**@page _Page_TinySAK_AnsiC_Debugging Debugging
 *
 * - @ref _Anchor_TinySAK_Debugging_Output "Output"
@@ -228,3 +343,32 @@ tsk_debug_set_info_cb(_debug_info_write_to_file);
 * - @ref tsk_debug_set_level
 * - @ref tsk_debug_set_warn_cb
 */
+
+// defines your INFO callback
+//static int _debug_info_write_to_file(const void* arg, const char* fmt, ...)
+// {
+// 	FILE* file = fopen("webrtc2sip.log", "w+"); // do not forget to close the file using fclose().
+// 	struct tm tm;
+//     struct timeval curTime;
+//     gettimeofday(&curTime, NULL);
+//     tm = *localtime(&curTime.tv_sec);
+//     int micro = curTime.tv_usec;
+//     //getpid()
+
+//     //31012020 21:11:59.000|
+// 	char *b = (char *)tsk_malloc(sizeof(char)*128);
+//     tsk_sprintf(&b, "%02d%02d%04d %02d:%02d:%02d.%03d|%d", tm.tm_mday, tm.tm_mon+1, 1900+tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec, micro, getpid());
+//     printf("%s\n", b);
+//     va_list ap;
+// 	char* msg = tsk_null;
+// 	const void* _this = (void*)arg; // value passed to the framework using tsk_debug_set_arg_data()
+// 	va_start(ap, fmt);
+// 	tsk_sprintf_2(&msg, fmt, &ap);
+
+//     fputs(b, file);
+// 	fputs(msg, file);
+// 	TSK_FREE(msg);
+// 	va_end(ap);
+//     fclose(file);
+// 	return 0;
+// }
