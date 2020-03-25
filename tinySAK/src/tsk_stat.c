@@ -87,7 +87,6 @@ const char *tsk_stat_path_file()
 
 int tsk_stat_count(TSK_STAT_NAME name)
 {
-
     if (name > TSK_STAT_LAST)
     {
         return -1;
@@ -154,7 +153,7 @@ static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id)
 
     if (stat && stat->timer_id == timer_id)
     {
-        TSK_DEBUG_INFO("appending stat file");
+        //TSK_DEBUG_INFO("appending stat file");
         const char *filepath = tsk_stat_path_file();
         FILE *file = fopen(filepath, "a+"); // do not forget to close the file using fclose().
         if (file == NULL)
@@ -188,7 +187,7 @@ static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id)
         fclose(file);
         
         STAT->timer_id = tsk_timer_manager_schedule(stat_timer, STAT->interval * 1000, _tsk_stat_writer_cb, STAT);
-        TSK_DEBUG_INFO("reschedule stat timer id : %d", STAT->timer_id);
+        //TSK_DEBUG_INFO("reschedule stat timer id : %d", STAT->timer_id);
     }
 
     tsk_object_unref(TSK_OBJECT(stat));

@@ -37,19 +37,72 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_WEBSOCKET_RECV,
 
     TSK_STAT_CONNECTION,
+
     TSK_STAT_ERROR_SENDING,
     TSK_STAT_ERROR_RECEIVING,
 
-    TSK_STAT_SIP_REQUEST_INVITE,
-    TSK_STAT_SIP_REQUEST_UPDATE,
-    TSK_STAT_SIP_REQUEST_PRACK,
-    TSK_STAT_SIP_REQUEST_ACK,
-    TSK_STAT_SIP_REQUEST_OPTIONS,
-    TSK_STAT_SIP_REQUEST_BYE,
-    TSK_STAT_SIP_REQUEST_CANCEL,
-    TSK_STAT_SIP_REQUEST_INFO,
-    TSK_STAT_SIP_REQUEST_NOTIFY,
-    TSK_STAT_SIP_REQUEST_REFER,
+    /* DONOT CHANGE THE SEQUENCE OF STAT, 
+    IT IS DUE TO MATCH WITH DESCRIPTION */
+
+    TSK_STAT_WS_IN_ACK,
+    TSK_STAT_WS_IN_BYE,
+    TSK_STAT_WS_IN_CANCEL,
+    TSK_STAT_WS_IN_INVITE,
+    TSK_STAT_WS_IN_OPTIONS,
+    TSK_STAT_WS_IN_REGISTER,
+    TSK_STAT_WS_IN_SUBSCRIBE,
+    TSK_STAT_WS_IN_NOTIFY,
+    TSK_STAT_WS_IN_REFER,
+    TSK_STAT_WS_IN_INFO,
+    TSK_STAT_WS_IN_UPDATE,
+    TSK_STAT_WS_IN_MESSAGE,
+    TSK_STAT_WS_IN_PUBLISH,
+    TSK_STAT_WS_IN_PRACK,
+
+    TSK_STAT_WS_OUT_ACK,
+    TSK_STAT_WS_OUT_BYE,
+    TSK_STAT_WS_OUT_CANCEL,
+    TSK_STAT_WS_OUT_INVITE,
+    TSK_STAT_WS_OUT_OPTIONS,
+    TSK_STAT_WS_OUT_REGISTER,
+    TSK_STAT_WS_OUT_SUBSCRIBE,
+    TSK_STAT_WS_OUT_NOTIFY,
+    TSK_STAT_WS_OUT_REFER,
+    TSK_STAT_WS_OUT_INFO,
+    TSK_STAT_WS_OUT_UPDATE,
+    TSK_STAT_WS_OUT_MESSAGE,
+    TSK_STAT_WS_OUT_PUBLISH,
+    TSK_STAT_WS_OUT_PRACK,
+
+    TSK_STAT_SIP_IN_ACK,
+    TSK_STAT_SIP_IN_BYE,
+    TSK_STAT_SIP_IN_CANCEL,
+    TSK_STAT_SIP_IN_INVITE,
+    TSK_STAT_SIP_IN_OPTIONS,
+    TSK_STAT_SIP_IN_REGISTER,
+    TSK_STAT_SIP_IN_SUBSCRIBE,
+    TSK_STAT_SIP_IN_NOTIFY,
+    TSK_STAT_SIP_IN_REFER,
+    TSK_STAT_SIP_IN_INFO,
+    TSK_STAT_SIP_IN_UPDATE,
+    TSK_STAT_SIP_IN_MESSAGE,
+    TSK_STAT_SIP_IN_PUBLISH,
+    TSK_STAT_SIP_IN_PRACK,
+
+    TSK_STAT_SIP_OUT_ACK,
+    TSK_STAT_SIP_OUT_BYE,
+    TSK_STAT_SIP_OUT_CANCEL,
+    TSK_STAT_SIP_OUT_INVITE,
+    TSK_STAT_SIP_OUT_OPTIONS,
+    TSK_STAT_SIP_OUT_REGISTER,
+    TSK_STAT_SIP_OUT_SUBSCRIBE,
+    TSK_STAT_SIP_OUT_NOTIFY,
+    TSK_STAT_SIP_OUT_REFER,
+    TSK_STAT_SIP_OUT_INFO,
+    TSK_STAT_SIP_OUT_UPDATE,
+    TSK_STAT_SIP_OUT_MESSAGE,
+    TSK_STAT_SIP_OUT_PUBLISH,
+    TSK_STAT_SIP_OUT_PRACK,
 
     TSK_STAT_LAST
 } TSK_STAT_NAME;
@@ -69,16 +122,65 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "ERROR_SENDING",
     "ERROR_RECEIVING",
 
-    "SIP_REQUEST_INVITE",
-    "SIP_REQUEST_UPDATE",
-    "SIP_REQUEST_PRACK",
-    "SIP_REQUEST_ACK",
-    "SIP_REQUEST_OPTIONS",
-    "SIP_REQUEST_BYE",
-    "SIP_REQUEST_CANCEL",
-    "SIP_REQUEST_INFO",
-    "SIP_REQUEST_NOTIFY",
-    "SIP_REQUEST_REFER",
+    "WS_IN_ACK",
+    "WS_IN_BYE",
+    "WS_IN_CANCEL",
+    "WS_IN_INVITE",
+    "WS_IN_OPTIONS",
+    "WS_IN_REGISTER",
+    "WS_IN_SUBSCRIBE",
+    "WS_IN_NOTIFY",
+    "WS_IN_REFER",
+    "WS_IN_INFO",
+    "WS_IN_UPDATE",
+    "WS_IN_MESSAGE",
+    "WS_IN_PUBLISH",
+    "WS_IN_PRACK",
+
+    "WS_OUT_ACK",
+    "WS_OUT_BYE",
+    "WS_OUT_CANCEL",
+    "WS_OUT_INVITE",
+    "WS_OUT_OPTIONS",
+    "WS_OUT_REGISTER",
+    "WS_OUT_SUBSCRIBE",
+    "WS_OUT_NOTIFY",
+    "WS_OUT_REFER",
+    "WS_OUT_INFO",
+    "WS_OUT_UPDATE",
+    "WS_OUT_MESSAGE",
+    "WS_OUT_PUBLISH",
+    "WS_OUT_PRACK",
+
+    "SIP_IN_ACK",
+    "SIP_IN_BYE",
+    "SIP_IN_CANCEL",
+    "SIP_IN_INVITE",
+    "SIP_IN_OPTIONS",
+    "SIP_IN_REGISTER",
+    "SIP_IN_SUBSCRIBE",
+    "SIP_IN_NOTIFY",
+    "SIP_IN_REFER",
+    "SIP_IN_INFO",
+    "SIP_IN_UPDATE",
+    "SIP_IN_MESSAGE",
+    "SIP_IN_PUBLISH",
+    "SIP_IN_PRACK",
+
+    "SIP_OUT_ACK",
+    "SIP_OUT_BYE",
+    "SIP_OUT_CANCEL",
+    "SIP_OUT_INVITE",
+    "SIP_OUT_OPTIONS",
+    "SIP_OUT_REGISTER",
+    "SIP_OUT_SUBSCRIBE",
+    "SIP_OUT_NOTIFY",
+    "SIP_OUT_REFER",
+    "SIP_OUT_INFO",
+    "SIP_OUT_UPDATE",
+    "SIP_OUT_MESSAGE",
+    "SIP_OUT_PUBLISH",
+    "SIP_OUT_PRACK"
 };
 
 typedef struct stat_s
@@ -105,15 +207,13 @@ static const tsk_object_def_t stat_def_t =
         stat_dtor,
         stat_cmp};
 
-
-
 static stat_t *STAT = NULL;
 static char STAT_FILE[256] = "webrtc2sip.stat";
 static char STAT_PATH[256] = "./";
 static char STAT_PATH_FILE[512] = "./webrtc2sip.stat";
 static char STAT_TIMESTAMP[128] = "";
-static int STAT_INTERVAL = 10;  //10 seconds
-static int STAT_RESET = 1; //enable resetting on next day
+static int STAT_INTERVAL = 10; //10 seconds
+static int STAT_RESET = 1;     //enable resetting on next day
 
 #define TSK_STAT_INIT(timeout) STAT = (stat_t *)TSK_STAT_CREATE(timeout)
 #define TSK_STAT_CREATE() tsk_object_new(&stat_def_t)
@@ -121,19 +221,19 @@ static int STAT_RESET = 1; //enable resetting on next day
 TINYSAK_API int tsk_stat_init(int interval);
 TINYSAK_API void tsk_stat_increase(TSK_STAT_NAME name);
 TINYSAK_API void tsk_stat_reset();
-TINYSAK_API void tsk_stat_set_path_file(const char* path, const char* filename);
-TINYSAK_API const char* tsk_stat_path_file();
+TINYSAK_API void tsk_stat_set_path_file(const char *path, const char *filename);
+TINYSAK_API const char *tsk_stat_path_file();
 TINYSAK_API int tsk_stat_count(TSK_STAT_NAME name);
-TINYSAK_API const char* tsk_stat_to_string();
+TINYSAK_API const char *tsk_stat_to_string();
 TINYSAK_API void tsk_stat_set_filename(const char *file);
 TINYSAK_API void tsk_stat_set_path(const char *path);
 TINYSAK_API void tsk_stat_set_interval(int interval);
 TINYSAK_API void tsk_stat_reset_enable(int is_reset);
-TINYSAK_API const char* tsk_stat_get_filename();
-TINYSAK_API const char* tsk_stat_get_path();
+TINYSAK_API const char *tsk_stat_get_filename();
+TINYSAK_API const char *tsk_stat_get_path();
 TINYSAK_API int tsk_stat_get_interval();
 TINYSAK_API int tsk_stat_is_reset();
-TINYSAK_API static int _tsk_stat_writer_cb(const void* arg, tsk_timer_id_t timer_id);
+TINYSAK_API static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id);
 TINYSAK_API int tsk_stat_start();
 
 TSK_END_DECLS

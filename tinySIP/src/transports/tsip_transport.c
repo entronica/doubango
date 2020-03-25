@@ -330,8 +330,8 @@ tsk_size_t tsip_transport_send_raw(const tsip_transport_t* self, const char* dst
     tsk_size_t ret = 0;
     tsk_stat_increase(TSK_STAT_SENT_MESSAGE);
     tsk_stat_increase(TSK_STAT_SIP_SENT);
-    TSK_DEBUG_INFO("\n\nSEND: %.*s\n\n", size, (const char*)data);
-    TSK_APP_INFO("Sip Sending %.*s" , size, (const char*)data);
+    TSK_DEBUG_INFO("ip=%s|port=%d|Sip Sending %.*s" , dst_host, (int32_t)dst_port, size, (const char*)data);
+    TSK_APP_INFO("ip=%s|port=%d|Sip Sending %.*s" , dst_host, (int32_t)dst_port, size, (const char*)data);
     if(TNET_SOCKET_TYPE_IS_DGRAM(self->type)) { // "udp" or "dtls"
         const struct sockaddr_storage* to = &self->pcscf_addr;
         struct sockaddr_storage dst_addr; // must be local scope
@@ -480,7 +480,13 @@ tsk_size_t tsip_transport_send_raw_ws(const tsip_transport_t* self, tnet_fd_t lo
     ret = tnet_transport_send(self->net_transport, local_fd, peer->ws.snd_buffer, (tsk_size_t)data_size);
     tsk_stat_increase(TSK_STAT_SENT_MESSAGE);
     tsk_stat_increase(TSK_STAT_WEBSOCKET_SENT);
-    TSK_APP_INFO("Websocket Sending %.*s" , size, (const char*)data);
+    if( peer->remote_ip ){
+        TSK_DEBUG_INFO("ip=%s|port=%d|Websocket Sending %.*s" , (const char*)peer->remote_ip, (int32_t)peer->remote_port,size, (const char*)data);
+        TSK_APP_INFO("ip=%s|port=%d|Websocket Sending %.*s" , (const char*)peer->remote_ip, (int32_t)peer->remote_port,size, (const char*)data);
+    }else{
+        TSK_DEBUG_INFO("Websocket Sending %.*s", size, (const char*)data);
+        TSK_APP_INFO("Websocket Sending %.*s", size, (const char*)data);
+    }
     TSK_OBJECT_SAFE_FREE(peer);
 
     return ret;
@@ -502,6 +508,17 @@ tsk_size_t tsip_transport_send(const tsip_transport_t* self, const char *branch,
         * Any request received from WS/WSS transport layer have to be updated regardless above rules
         */
         if(TSIP_MESSAGE_IS_REQUEST(msg)) {
+        
+            /* WS, WSS */
+            if ( TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type) ){
+                tsk_stat_increase(msg->line.request.request_type + TSK_STAT_WS_OUT_ACK - 1);
+                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_WS_OUT_ACK - 1), msg->line.request.request_type);
+            } 
+            else { /* Other UDP, TCP will be counted as SIP */
+                tsk_stat_increase(msg->line.request.request_type + TSK_STAT_SIP_OUT_ACK - 1);
+                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_SIP_OUT_ACK - 1), msg->line.request.request_type);
+            }
+
             const tsk_bool_t update = ( (!TSIP_REQUEST_IS_ACK(msg) || (TSIP_REQUEST_IS_ACK(msg) && !msg->firstVia)) && !TSIP_REQUEST_IS_CANCEL(msg) )
                                       || ( TNET_SOCKET_TYPE_IS_WS(msg->src_net_type) || TNET_SOCKET_TYPE_IS_WSS(msg->src_net_type) );
             if(update) {

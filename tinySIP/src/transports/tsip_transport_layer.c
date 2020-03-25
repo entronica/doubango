@@ -118,6 +118,21 @@ int tsip_transport_layer_handle_incoming_msg(const tsip_transport_t *transport, 
     int ret = -1;
 
     if(message) {
+        TSK_DEBUG_INFO("Incoming type[%d]", message->type);
+        /* WS, WSS */
+        if ( TNET_SOCKET_TYPE_IS_WS(transport->type) || TNET_SOCKET_TYPE_IS_WSS(transport->type) ){
+            if( TSIP_MESSAGE_IS_REQUEST(message) ) {
+                tsk_stat_increase(message->line.request.request_type + TSK_STAT_WS_IN_ACK - 1);
+                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(message->line.request.request_type + TSK_STAT_WS_IN_ACK - 1), message->line.request.request_type);
+            }
+        } 
+        else { /* Other UDP, TCP will be counted as SIP */
+            if( TSIP_MESSAGE_IS_REQUEST(message) ) {
+                tsk_stat_increase(message->line.request.request_type + TSK_STAT_SIP_IN_ACK - 1);
+                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(message->line.request.request_type + TSK_STAT_SIP_IN_ACK - 1), message->line.request.request_type);
+            }
+        }
+
         const tsip_transac_layer_t *layer_transac = transport->stack->layer_transac;
         const tsip_dialog_layer_t *layer_dialog = transport->stack->layer_dialog;
 
@@ -141,10 +156,6 @@ static int tsip_transport_layer_stream_cb(const tnet_transport_event_t* e)
 
     switch(e->type) {
     case event_data: {
-        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
-        tsk_stat_increase(TSK_STAT_SIP_RECV);
-        TSK_DEBUG_INFO("\n\nRECV:%.*s\n\n", e->size, (const char*)e->data);
-        TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data);
         break;
     }
     case event_closed:
@@ -320,6 +331,17 @@ parse_buffer:
         /* Set fd */
         message->local_fd = e->local_fd;
         message->src_net_type = transport->type;
+
+        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
+        tsk_stat_increase(TSK_STAT_SIP_RECV);
+
+        if( peer->remote_ip ){
+            TSK_DEBUG_INFO("ip=%s|port=%d|Sip Receiving %.*s", (const char*)peer->remote_ip, (int32_t)peer->remote_port, e->size, (const char*)e->data); 
+            TSK_APP_INFO("ip=%s|port=%d|Sip Receiving %.*s", (const char*)peer->remote_ip, (int32_t)peer->remote_port, e->size, (const char*)e->data); 
+        }else{
+            TSK_DEBUG_INFO("Sip Receiving %.*s",  e->size, (const char*)e->data); 
+            TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data); 
+        }
         /* Alert transaction/dialog layer */
         ret = tsip_transport_layer_handle_incoming_msg(transport, message);
         /* Parse next chunck */
@@ -608,8 +630,13 @@ parse_buffer:
     //	==> Parse the SIP message without the content.
     tsk_stat_increase(TSK_STAT_WEBSOCKET_RECV);
     tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
-    TSK_APP_INFO("Websocket Receiving %.*s", pay_len, (const char*)peer->ws.rcv_buffer);
-    TSK_DEBUG_INFO("Receiving SIP o/ WebSocket message: %.*s", pay_len, (const char*)peer->ws.rcv_buffer);
+    if( peer->remote_ip ){
+        TSK_DEBUG_INFO("ip=%s|port=%d|Websocket Receiving %.*s", (const char*)peer->remote_ip, (uint32_t)peer->remote_port, pay_len, (const char*)peer->ws.rcv_buffer);
+        TSK_APP_INFO("ip=%s|port=%d|Websocket Receiving %.*s", (const char*)peer->remote_ip, (uint32_t)peer->remote_port, pay_len, (const char*)peer->ws.rcv_buffer);
+    }else{
+        TSK_DEBUG_INFO("Websocket Receiving %.*s", pay_len, (const char*)peer->ws.rcv_buffer);
+        TSK_APP_INFO("Websocket Receiving %.*s", pay_len, (const char*)peer->ws.rcv_buffer);  
+    }
     tsk_ragel_state_init(&state, peer->ws.rcv_buffer, (tsk_size_t)pay_len);
     if (tsip_message_parse(&state, &message, tsk_false/* do not extract the content */) == tsk_true) {
         const uint8_t* body_start = (const uint8_t*)state.eoh;
@@ -663,10 +690,6 @@ static int tsip_transport_layer_dgram_cb(const tnet_transport_event_t* e)
 
     switch(e->type) {
     case event_data: {
-        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
-        tsk_stat_increase(TSK_STAT_SIP_RECV);
-        TSK_DEBUG_INFO("\n\nRECV:%.*s\n\n", e->size, (const char*)e->data);
-        TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data);       
         break;
     }
     case event_closed:
@@ -741,7 +764,18 @@ static int tsip_transport_layer_dgram_cb(const tnet_transport_event_t* e)
             }
         }
 
+        tsk_stat_increase(TSK_STAT_RECEIVED_MESSAGE);
+        tsk_stat_increase(TSK_STAT_SIP_RECV);
+        tnet_ip_t ip;
+        tnet_port_t port;
 
+        if((ret = tnet_get_sockip_n_port((const struct sockaddr*)&e->remote_addr, &ip, &port)) == 0) {
+            TSK_DEBUG_INFO("ip=%s|port=%d|Sip Receiving %.*s", (const char*)ip, port, e->size, (const char*)e->data); 
+            TSK_APP_INFO("ip=%s|port=%d|Sip Receiving %.*s", (const char*)ip, port, e->size, (const char*)e->data);   
+        }else{
+            TSK_DEBUG_INFO("Sip Receiving %.*s", e->size, (const char*)e->data); 
+            TSK_APP_INFO("Sip Receiving %.*s", e->size, (const char*)e->data);  
+        }
         /* Alert transaction/dialog layer */
         ret = tsip_transport_layer_handle_incoming_msg(transport, message);
     }

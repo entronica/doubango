@@ -21,6 +21,7 @@
 #define _APP_LOG_H_
 
 #include "tinysak_config.h"
+#include "tsk_string.h"
 
 TSK_BEGIN_DECLS
 
