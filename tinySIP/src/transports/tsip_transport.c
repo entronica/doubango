@@ -532,6 +532,19 @@ tsk_size_t tsip_transport_send(const tsip_transport_t* self, const char *branch,
             }
         }
         else if(TSIP_MESSAGE_IS_RESPONSE(msg)) {
+
+             /* WS, WSS */
+            if ( TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type) ){
+                int reponse_group_code = tsk_stat_response_code_to_group(msg->line.response.status_code);
+                tsk_stat_increase(reponse_group_code + TSK_STAT_WS_OUT_1XX - 1);
+                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_WS_OUT_1XX - 1), msg->line.response.status_code, (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
+            } 
+            else { /* Other UDP, TCP will be counted as SIP */
+                int reponse_group_code = tsk_stat_response_code_to_group(msg->line.response.status_code);
+                tsk_stat_increase(reponse_group_code + TSK_STAT_SIP_OUT_1XX - 1);
+                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_SIP_OUT_1XX - 1), msg->line.response.status_code, (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
+            }
+
             const tsip_header_t *via;
             if ((via = tsip_message_get_headerAt(msg, tsip_htype_Via, 1)) && TNET_SOCKET_TYPE_IS_UDP(msg->src_net_type) && (TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type))) {
                 TSK_OBJECT_SAFE_FREE(msg->firstVia);

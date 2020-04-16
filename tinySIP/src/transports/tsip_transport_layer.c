@@ -124,12 +124,20 @@ int tsip_transport_layer_handle_incoming_msg(const tsip_transport_t *transport, 
             if( TSIP_MESSAGE_IS_REQUEST(message) ) {
                 tsk_stat_increase(message->line.request.request_type + TSK_STAT_WS_IN_ACK - 1);
                 TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(message->line.request.request_type + TSK_STAT_WS_IN_ACK - 1), message->line.request.request_type);
+            }else{
+                int reponse_group_code = tsk_stat_response_code_to_group(message->line.response.status_code);
+                tsk_stat_increase(reponse_group_code + TSK_STAT_WS_IN_1XX - 1);
+                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_WS_IN_1XX - 1), message->line.response.status_code, (message->line.response.reason_phrase)?message->line.response.reason_phrase:"");
             }
         } 
         else { /* Other UDP, TCP will be counted as SIP */
             if( TSIP_MESSAGE_IS_REQUEST(message) ) {
                 tsk_stat_increase(message->line.request.request_type + TSK_STAT_SIP_IN_ACK - 1);
                 TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(message->line.request.request_type + TSK_STAT_SIP_IN_ACK - 1), message->line.request.request_type);
+            }else{
+                int reponse_group_code = tsk_stat_response_code_to_group(message->line.response.status_code);
+                tsk_stat_increase(reponse_group_code + TSK_STAT_SIP_IN_1XX - 1);
+                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_SIP_IN_1XX - 1), message->line.response.status_code, (message->line.response.reason_phrase)?message->line.response.reason_phrase:"");
             }
         }
 
