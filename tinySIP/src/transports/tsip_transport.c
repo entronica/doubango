@@ -512,11 +512,11 @@ tsk_size_t tsip_transport_send(const tsip_transport_t* self, const char *branch,
             /* WS, WSS */
             if ( TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type) ){
                 tsk_stat_increase(msg->line.request.request_type + TSK_STAT_WS_OUT_ACK - 1);
-                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_WS_OUT_ACK - 1), msg->line.request.request_type);
+                TSK_DEBUG_INFO("increase %s stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_WS_OUT_ACK - 1));
             } 
             else { /* Other UDP, TCP will be counted as SIP */
                 tsk_stat_increase(msg->line.request.request_type + TSK_STAT_SIP_OUT_ACK - 1);
-                TSK_DEBUG_INFO("increase %s(%d) stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_SIP_OUT_ACK - 1), msg->line.request.request_type);
+                TSK_DEBUG_INFO("increase %s stat", tsk_stat_to_string(msg->line.request.request_type + TSK_STAT_SIP_OUT_ACK - 1));
             }
 
             const tsk_bool_t update = ( (!TSIP_REQUEST_IS_ACK(msg) || (TSIP_REQUEST_IS_ACK(msg) && !msg->firstVia)) && !TSIP_REQUEST_IS_CANCEL(msg) )
@@ -537,12 +537,12 @@ tsk_size_t tsip_transport_send(const tsip_transport_t* self, const char *branch,
             if ( TNET_SOCKET_TYPE_IS_WS(self->type) || TNET_SOCKET_TYPE_IS_WSS(self->type) ){
                 int reponse_group_code = tsk_stat_response_code_to_group(msg->line.response.status_code);
                 tsk_stat_increase(reponse_group_code + TSK_STAT_WS_OUT_1XX - 1);
-                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_WS_OUT_1XX - 1), msg->line.response.status_code, (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
+                TSK_DEBUG_INFO("increase response %s %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_WS_OUT_1XX - 1), (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
             } 
             else { /* Other UDP, TCP will be counted as SIP */
                 int reponse_group_code = tsk_stat_response_code_to_group(msg->line.response.status_code);
                 tsk_stat_increase(reponse_group_code + TSK_STAT_SIP_OUT_1XX - 1);
-                TSK_DEBUG_INFO("increase response %s(%d) %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_SIP_OUT_1XX - 1), msg->line.response.status_code, (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
+                TSK_DEBUG_INFO("increase response %s %s stat", tsk_stat_to_string(reponse_group_code + TSK_STAT_SIP_OUT_1XX - 1), (msg->line.response.reason_phrase)?msg->line.response.reason_phrase:"");
             }
 
             const tsip_header_t *via;
