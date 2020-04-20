@@ -61,6 +61,10 @@ int tsk_stat_init(int interval)
 
 void tsk_stat_increase(TSK_STAT_NAME name)
 {
+    if (name < 0 || name > TSK_STAT_LAST) {
+        TSK_DEBUG_FATAL("Invalid enum stat [%d]", name);
+    }
+
     if (STAT != NULL)
     {
         STAT->stats[name]++;
@@ -147,6 +151,27 @@ int tsk_stat_is_reset()
     return STAT_RESET;
 }
 
+static void _stat_in_out_write(FILE *file){
+    const int size = 20;
+    const char *STATS[] = {"ACK","BYE","CANCEL","INVITE","OPTIONS","REGISTER",
+    "SUBSCRIBE","NOTIFY","REFER","INFO","UPDATE","MESSAGE","PUBLISH","PRACK",
+    "1XX","2XX","3XX","4XX","5XX","6XX"};
+
+    int i;
+    char *b = tsk_null;
+
+    for( i = 0; i < 20; i++ ){
+        tsk_sprintf(&b, "WS_%s|%d|%d\n", STATS[i], tsk_stat_count(TSK_STAT_WS_IN_ACK + i), tsk_stat_count(TSK_STAT_WS_OUT_ACK + i));
+        fputs(b, file);
+    }
+
+    for( i = 0; i < 20; i++ ){
+        tsk_sprintf(&b, "SIP_%s|%d|%d\n", STATS[i], tsk_stat_count(TSK_STAT_SIP_IN_ACK + i), tsk_stat_count(TSK_STAT_SIP_OUT_ACK + i));
+        fputs(b, file);
+    }
+
+}
+
 static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id)
 {
     stat_t *stat = (stat_t *)tsk_object_ref(TSK_OBJECT(arg));
@@ -176,11 +201,13 @@ static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id)
 
         int i;
 
-        for (i = 0; i < TSK_STAT_LAST; i++)
+        for (i = 0; i < TSK_STAT_WS_IN_ACK; i++)
         {
             tsk_sprintf(&b, "%s|%d\n", tsk_stat_to_string(i), tsk_stat_count(i));
             fputs(b, file);
         }
+
+        (void)_stat_in_out_write(file);
 
         fputs("\n\n", file);
         TSK_FREE(b);
@@ -220,4 +247,12 @@ int tsk_stat_start()
         return -1;
     }
     return 0;
+}
+
+int tsk_stat_response_code_to_group(int response_code){
+    if( response_code < 100 || response_code > 608) {
+        TSK_DEBUG_FATAL("Unknown SIP response code [%d]", response_code);
+        return TSK_STAT_LAST;
+    }
+    return (int)(response_code/100);
 }

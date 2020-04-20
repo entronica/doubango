@@ -36,11 +36,6 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_WEBSOCKET_SENT,
     TSK_STAT_WEBSOCKET_RECV,
 
-    TSK_STAT_CONNECTION,
-
-    TSK_STAT_ERROR_SENDING,
-    TSK_STAT_ERROR_RECEIVING,
-
     /* DONOT CHANGE THE SEQUENCE OF STAT, 
     IT IS DUE TO MATCH WITH DESCRIPTION */
 
@@ -58,6 +53,12 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_WS_IN_MESSAGE,
     TSK_STAT_WS_IN_PUBLISH,
     TSK_STAT_WS_IN_PRACK,
+    TSK_STAT_WS_IN_1XX,
+    TSK_STAT_WS_IN_2XX,
+    TSK_STAT_WS_IN_3XX,
+    TSK_STAT_WS_IN_4XX,
+    TSK_STAT_WS_IN_5XX,
+    TSK_STAT_WS_IN_6XX,
 
     TSK_STAT_WS_OUT_ACK,
     TSK_STAT_WS_OUT_BYE,
@@ -73,6 +74,12 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_WS_OUT_MESSAGE,
     TSK_STAT_WS_OUT_PUBLISH,
     TSK_STAT_WS_OUT_PRACK,
+    TSK_STAT_WS_OUT_1XX,
+    TSK_STAT_WS_OUT_2XX,
+    TSK_STAT_WS_OUT_3XX,
+    TSK_STAT_WS_OUT_4XX,
+    TSK_STAT_WS_OUT_5XX,
+    TSK_STAT_WS_OUT_6XX,
 
     TSK_STAT_SIP_IN_ACK,
     TSK_STAT_SIP_IN_BYE,
@@ -88,6 +95,12 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_SIP_IN_MESSAGE,
     TSK_STAT_SIP_IN_PUBLISH,
     TSK_STAT_SIP_IN_PRACK,
+    TSK_STAT_SIP_IN_1XX,
+    TSK_STAT_SIP_IN_2XX,
+    TSK_STAT_SIP_IN_3XX,
+    TSK_STAT_SIP_IN_4XX,
+    TSK_STAT_SIP_IN_5XX,
+    TSK_STAT_SIP_IN_6XX,
 
     TSK_STAT_SIP_OUT_ACK,
     TSK_STAT_SIP_OUT_BYE,
@@ -103,6 +116,12 @@ typedef enum TSK_STAT_NAME
     TSK_STAT_SIP_OUT_MESSAGE,
     TSK_STAT_SIP_OUT_PUBLISH,
     TSK_STAT_SIP_OUT_PRACK,
+    TSK_STAT_SIP_OUT_1XX,
+    TSK_STAT_SIP_OUT_2XX,
+    TSK_STAT_SIP_OUT_3XX,
+    TSK_STAT_SIP_OUT_4XX,
+    TSK_STAT_SIP_OUT_5XX,
+    TSK_STAT_SIP_OUT_6XX,
 
     TSK_STAT_LAST
 } TSK_STAT_NAME;
@@ -117,11 +136,8 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "WEBSOCKET_SENT",
     "WEBSOCKET_RECV",
 
-    "CONNECTION",
-
-    "ERROR_SENDING",
-    "ERROR_RECEIVING",
-
+ /* DONOT CHANGE THE SEQUENCE OF STAT, 
+    IT IS DUE TO MATCH WITH DESCRIPTION */
     "WS_IN_ACK",
     "WS_IN_BYE",
     "WS_IN_CANCEL",
@@ -136,6 +152,12 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "WS_IN_MESSAGE",
     "WS_IN_PUBLISH",
     "WS_IN_PRACK",
+    "WS_IN_1XX",
+    "WS_IN_2XX",
+    "WS_IN_3XX",
+    "WS_IN_4XX",
+    "WS_IN_5XX",
+    "WS_IN_6XX",
 
     "WS_OUT_ACK",
     "WS_OUT_BYE",
@@ -151,6 +173,12 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "WS_OUT_MESSAGE",
     "WS_OUT_PUBLISH",
     "WS_OUT_PRACK",
+    "WS_OUT_1XX",
+    "WS_OUT_2XX",
+    "WS_OUT_3XX",
+    "WS_OUT_4XX",
+    "WS_OUT_5XX",
+    "WS_OUT_6XX",
 
     "SIP_IN_ACK",
     "SIP_IN_BYE",
@@ -166,6 +194,12 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "SIP_IN_MESSAGE",
     "SIP_IN_PUBLISH",
     "SIP_IN_PRACK",
+    "SIP_IN_1XX",
+    "SIP_IN_2XX",
+    "SIP_IN_3XX",
+    "SIP_IN_4XX",
+    "SIP_IN_5XX",
+    "SIP_IN_6XX",
 
     "SIP_OUT_ACK",
     "SIP_OUT_BYE",
@@ -180,7 +214,13 @@ static const char *TSK_STR_STAT[TSK_STAT_LAST] = {
     "SIP_OUT_UPDATE",
     "SIP_OUT_MESSAGE",
     "SIP_OUT_PUBLISH",
-    "SIP_OUT_PRACK"
+    "SIP_OUT_PRACK",
+    "SIP_OUT_1XX",
+    "SIP_OUT_2XX",
+    "SIP_OUT_3XX",
+    "SIP_OUT_4XX",
+    "SIP_OUT_5XX",
+    "SIP_OUT_6XX"
 };
 
 typedef struct stat_s
@@ -235,6 +275,7 @@ TINYSAK_API int tsk_stat_get_interval();
 TINYSAK_API int tsk_stat_is_reset();
 TINYSAK_API static int _tsk_stat_writer_cb(const void *arg, tsk_timer_id_t timer_id);
 TINYSAK_API int tsk_stat_start();
+TINYSAK_API int tsk_stat_response_code_to_group(int response_code);
 
 TSK_END_DECLS
 
