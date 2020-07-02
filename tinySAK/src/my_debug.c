@@ -20,6 +20,7 @@
 #include "my_debug.h"
 #include "tsk_memory.h"
 #include "tsk_string.h"
+#include "tsk_mutex.h"
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -29,6 +30,11 @@
 #include <errno.h>
 
 static int tsk_debug_level = DEBUG_LEVEL;
+static tsk_mutex_handle_t* debug_mutex;
+
+void tsk_debug_init() {
+    debug_mutex = tsk_mutex_create();
+}
 
 void tsk_debug_set_log_file(const char *logfile)
 {
@@ -75,6 +81,8 @@ const char *tsk_debug_get_current_time()
 
 int tsk_debug_writer(const void *arg, const char *fmt, ...)
 {
+    tsk_mutex_lock(debug_mutex);
+
     const char *filepath = tsk_debug_get_log_file_path();
     FILE *file = fopen(filepath, "a+"); // do not forget to close the file using fclose().
     if (file == NULL)
@@ -82,6 +90,7 @@ int tsk_debug_writer(const void *arg, const char *fmt, ...)
         fprintf(stderr, "Error opening file: %s\n", strerror(errno));
         return -1;
     }
+
     struct tm tm;
     struct timeval curTime;
     gettimeofday(&curTime, NULL);
@@ -94,14 +103,17 @@ int tsk_debug_writer(const void *arg, const char *fmt, ...)
     fputs(b, file);
     TSK_FREE(b);
 
+    b = tsk_null;
     va_list ap;
     const void *_this = (void *)arg; // value passed to the framework using tsk_debug_set_arg_data()
     va_start(ap, fmt);
     tsk_sprintf_2(&b, fmt, &ap);
     fputs(b, file);
-
     TSK_FREE(b);
+    
+
     va_end(ap);
     fclose(file);
+    tsk_mutex_unlock(debug_mutex);
     return 0;
 }

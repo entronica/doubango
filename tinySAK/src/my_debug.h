@@ -61,6 +61,7 @@ TINYSAK_API void tsk_debug_set_fatal_cb(tsk_debug_f );
 TINYSAK_API tsk_debug_f tsk_debug_get_fatal_cb( );
 TINYSAK_API int tsk_debug_get_level( );
 TINYSAK_API void tsk_debug_set_level(int );
+TINYSAK_API void tsk_debug_init();
 TINYSAK_API void tsk_debug_set_log_file( const char* );
 TINYSAK_API const char* tsk_debug_get_log_file( );
 TINYSAK_API void tsk_debug_set_log_path( const char* );

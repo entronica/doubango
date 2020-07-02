@@ -474,7 +474,7 @@ static const tsk_object_def_t tnet_ice_ctx_def_s = {
 
 tnet_ice_ctx_t* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata)
 {
-    tnet_ice_ctx_t* ctx;
+    tnet_ice_ctx_t* ctx = tsk_null;
     rtp_port_range_t *rtp_port = (rtp_port_range_t *) userdata;
 
     if (!(ctx = tsk_object_new(&tnet_ice_ctx_def_s))) {
@@ -543,7 +543,7 @@ tnet_ice_ctx_t* tnet_ice_ctx_create(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv
 
 tnet_ice_ctx_t* tnet_ice_ctx_create2(tsk_bool_t is_ice_jingle, tsk_bool_t use_ipv6, tsk_bool_t use_rtcp, tsk_bool_t is_video, tnet_ice_callback_f callback, const void* userdata, uint16_t port_start, uint16_t port_stop)
 {
-    tnet_ice_ctx_t* ctx;
+    tnet_ice_ctx_t* ctx = tsk_null;
     rtp_port_range_t *rtp_port = (rtp_port_range_t *) userdata;
 
     if (!(ctx = tsk_object_new(&tnet_ice_ctx_def_s))) {
